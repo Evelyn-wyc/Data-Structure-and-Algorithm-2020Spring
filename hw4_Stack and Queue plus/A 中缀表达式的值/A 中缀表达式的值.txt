@@ -1,0 +1,243 @@
+描述
+
+
+人们熟悉的四则运算表达式称为中缀表达式，例如(23+34*45/(5+6+7))。
+在程序设计语言中，可以利用堆栈的方法把中缀表达式转换成保值的后缀表达式
+（又称逆波兰表示法），并最终变为计算机可以直接执行的指令，得到表达式的值。
+
+给定一个中缀表达式，编写程序，利用堆栈的方法，计算表达式的值。
+
+
+输入
+
+第一行为测试数据的组数N
+
+接下来的N行，每行是一个中缀表达式。
+表达式中只含数字、四则运算符和圆括号，操作数都是正整数，数和运算符、括号之间没有空格。
+中缀表达式的字符串长度不超过600。
+
+
+
+
+
+代码：
+/*
+中缀转后缀
+后缀用栈
+*/
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <stack>
+
+using namespace std;
+
+char expr[700] = {};
+char pexpr[700] = {};
+
+bool IsNum(char c)
+{
+	return (c >= '0' && c <= '9');
+}
+
+int Compare(char a, char b)
+{
+	//比较两个符号优先级，左括号优先级最高，记为0；右括号优先级最低，记为1；a>=b，记为1
+	if (b == ')') return 1;
+	if (b == '(' || a == '(') return 0;
+
+	switch (b)
+	{
+	case '+':
+	case '-':
+		return 1;
+	case '*':
+	case '/':
+		switch (a)
+		{
+		case '+':
+		case '-':
+			return 0;
+		case '*':
+		case '/':
+			return 1;
+		}
+
+	}
+}
+
+void change(char str1[])
+//转换成后缀表达式
+{
+	char str2[21] = {};
+	int flag = 0;//str2的长度
+	int space = 0;
+	int len = strlen(str1);
+	int plen = 0;//pexpr的长度
+
+	for (int i = 0; i < len; i++)
+	{
+		if (IsNum(str1[i]))
+		{
+			//str1[i]是数字则输出
+			if (space)
+			{
+				pexpr[plen] = ' ';
+				plen++;
+				space = 0;
+			}
+			pexpr[plen] = str1[i];
+			plen++;
+		}
+		else
+		{
+			if (flag)
+			{
+				if (str1[i] == ')')
+				{
+					//str2出栈，直到遇到'('
+					while (flag--)
+					{
+						if (str2[flag] == '(')
+							break;
+						pexpr[plen] = ' ';
+						pexpr[plen + 1] = str2[flag];
+						plen += 2;
+					}
+				}
+				else
+				{
+					while (flag)
+					{
+						//str2内不为空，比较栈顶与str1[i]的优先级
+						if (Compare(str2[flag - 1], str1[i]))
+						{
+							//若str1优先级低，出栈
+							flag--;
+							pexpr[plen] = ' ';
+							pexpr[plen + 1] = str2[flag];
+							plen += 2;
+						}
+						else break;
+					}
+					str2[flag] = str1[i];
+					flag++;
+				}
+			}
+			else
+			{
+				str2[flag] = str1[i];
+				flag++;
+			}
+			//判断是否输出空格
+			for (int j = 0; j < flag; j++)
+			{
+				if (str2[j] != '(')
+				{
+					//抛弃掉'('，不输出空格
+					space = 1;
+					break;
+				}
+			}
+		}
+	}
+	while (flag)
+	{
+		flag--;
+		pexpr[plen] = ' ';
+		pexpr[plen + 1] = str2[flag];
+		plen += 2;
+	}
+}
+
+int operation(char c, int a, int b)
+{
+	switch (c)
+	{
+	case '+':
+		return a + b;
+	case '-':
+		return a - b;
+	case '*':
+		return a * b;
+	case '/':
+		return (int)a / b;
+	}
+}
+
+int answer(char c[])
+//后缀表达式求值
+{
+	stack<int> s;
+	int len = strlen(c);
+	char tmp[20] = {};//临时存放数字
+	int tlen = 0;//临时数字的长度
+	for (int i = 0; i < len; i++)
+	{
+		if (c[i] >= '0' && c[i] <= '9')
+		{
+			tmp[tlen] = c[i];
+			tlen++;
+		}
+		else
+		{
+			if (c[i - 1] >= '0' && c[i - 1] <= '9')
+			{
+				int num = atoi(tmp);
+				memset(tmp, 0, sizeof(tmp));
+				tlen = 0;
+				s.push(num);
+			}
+
+			if (c[i] != ' ')
+			{
+				int a1 = s.top();
+				s.pop();
+				int a2 = s.top();
+				s.pop();
+				s.push(operation(c[i], a2, a1));
+			}
+		}
+	}
+	return s.top();
+}
+
+int main()
+{
+	int n;
+	cin >> n;
+	cin.get();
+	while (n--)
+	{
+		cin.getline(expr, 700);
+		change(expr);//得到后缀表达式pexpr
+		cout << answer(pexpr) << endl;
+	}
+	return 0;
+}
+
+输出
+
+对每一组测试数据输出一行，为表达式的值
+
+
+样例输入
+
+3
+3+5*8
+(3+5)*8
+(23+34*45/(5+6+7))
+
+
+样例输出
+
+43
+64
+108
+
+
+提示
+注意：
+运算过程均为整数运算（除法运算'/'即按照C++定义的int除以int的结果，测试数据不会出现除数为0的情况），
+输出结果也为整数（可能为负）。
+中间计算结果可能为负。
