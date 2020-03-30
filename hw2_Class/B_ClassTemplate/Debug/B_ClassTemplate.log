@@ -1,5 +1,0 @@
-﻿  B_ClassTemplate.cpp
-D:\pku\courses\2.2_DSA\作业2-类操作\B_ClassTemplate\B_ClassTemplate.cpp(120,12): warning C4101:  “k”: 未引用的局部变量
-D:\pku\courses\2.2_DSA\作业2-类操作\B_ClassTemplate\B_ClassTemplate.cpp(120,9): warning C4101:  “j”: 未引用的局部变量
-D:\pku\courses\2.2_DSA\作业2-类操作\B_ClassTemplate\B_ClassTemplate.cpp(120,6): warning C4101:  “i”: 未引用的局部变量
-  B_ClassTemplate.vcxproj -> D:\pku\courses\2.2_DSA\作业2-类操作\A_ClassPackage\Debug\B_ClassTemplate.exe
